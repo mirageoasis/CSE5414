@@ -155,7 +155,7 @@ int input(char* buf,char* clientBuf)
         int j = send_headers(200, "Ok", (char *)0, get_mime_type(file), sb.st_size, sb.st_mtime, clientBuf);
         // 이거 고치기
         while ((ich = getc(fp)) != EOF)
-            putchar(ich);
+            j += sprintf(clientBuf + j,"%c",ich);
     }
 
     (void)fflush(stdout);

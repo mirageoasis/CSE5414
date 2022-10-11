@@ -96,8 +96,8 @@ void echo_cnt(int connfd)
         //printf("input is %s :\n", buf);
         //줄바꿈 문자까지 받는다.
         input(buf, clientBuf);
-        total_bytes += n;
-        printf("%s\n", clientBuf);
+        total_bytes += strlen(clientBuf);
+        //printf("%s\n", clientBuf);
         Rio_writen(connfd, clientBuf, MAXLINE);
         //fprintf(stdout, "command: %s", buf);
     }
@@ -115,7 +115,6 @@ void *thread(void *vargp)
         // 여기가 이제 mico_httpd 입력 들어올 곳이다. echo_cnt 함수
         echo_cnt(connfd); /* Service client */
 
-        
         sem_wait(&filemutex); // 연결 끝나면 정산 time
         clientNumber--;
         assert(clientNumber >= 0);
