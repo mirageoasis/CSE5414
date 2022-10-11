@@ -66,19 +66,6 @@ int main(int argc, char **argv)
     exit(0);
 }
 
-void command(char *BUF2, char *buf, char *argv[], char *clientBuf)
-{
-    int argc = 0;
-
-    memset(clientBuf, 0, MAXLINE); // clinet 에 보낼 buffer 청소하기
-    strcpy(BUF2, buf);             // buf2 에 buf내용 복사하기
-    BUF2[strlen(BUF2) - 1] = 0;    // 개행문자 없에서 argv 로 분리하기 쉽게 만듬
-
-    for (int i = 0; argv[i] != NULL; i++)
-        argc++;
-    
-}
-
 void echo_cnt(int connfd)
 {
     // 이 함수가 client 로 부터 입력을 받는 함수다.
