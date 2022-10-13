@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	rio_t rio;
 	pthread_t* tid;
 	
-	if (argc != 5)
+	if (argc != 6)
 	{
 		fprintf(stderr, "usage: %s <host> <port> <client#> <number of accesss> <name of file>\n", argv[0]);
 		exit(0);
@@ -54,8 +54,6 @@ int main(int argc, char **argv)
 		Pthread_create(&tid[i], NULL, thread, args);
 
 	/*	fork for each client process	*/
-
-	// wait(&state);
 	
 	// wait for all threads
 	for (int i = 0; i < num_client; i++) /* Create worker threads */
@@ -63,7 +61,7 @@ int main(int argc, char **argv)
 
 	free(tid);
 	fclose(fp);
-
+	fprintf(stdout, "total %d bytes received from server!\n", total_bytes);
 	return 0;
 }
 
@@ -86,18 +84,22 @@ void *thread(void *vargp)
 		// clientNumber++;
 		// buf 에 입력 받아오기 스레드 safe 하지 않아도 문제 없을꺼 같음
 		// 파일 접근시에는 무조건 lock을 건다.
-		fscanf(fp ,"%s", buf);
+		fprintf(stdout, "reading files!\n");
+		fgets(buf , MAXLINE, fp);
+		fprintf(stdout, "%s\n", buf);
+		fprintf(stdout, "reading files!\n");
 		sem_post(&filemutex);
-		fprintf(stdout, "%s", buf);
+		
 		Rio_writen(clientfd, buf, strlen(buf));
 		// Rio_readlineb(&rio, buf, MAXLINE);
 		Rio_readnb(&rio, buf, MAXLINE);
 		Fputs(buf, stdout);
+		//Fputs('\n', stdout);
 		
 		sem_wait(&countmutex);
 		total_bytes += strlen(buf);
 		sem_post(&countmutex);
-
+		//sleep(1);
 	}
 
 	Close(clientfd);

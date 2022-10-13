@@ -64,7 +64,7 @@ int input(char* buf,char* clientBuf)
     }
     /*내가 추가한 line 공백문자 제거*/
     path[strlen(path) - 1] = 0;
-    printf("line 67!\n");
+    //printf("line 67!\n");
 
 
 
@@ -89,8 +89,8 @@ int input(char* buf,char* clientBuf)
         file = "./";
 
     /*디버깅 출력 현재 파일 경로도*/
-    fprintf(stdout, "file name is %s\n", file);
-    printf("%d\n", strcmp(file, "index.html"));
+    //fprintf(stdout, "file name is %s\n", file);
+    //printf("%d\n", strcmp(file, "index.html"));
 
     len = strlen(file);
     if (file[0] == '/' || strcmp(file, "..") == 0 || strncmp(file, "../", 3) == 0 || strstr(file, "/../") != (char *)0 || strcmp(&(file[len - 3]), "/..") == 0){

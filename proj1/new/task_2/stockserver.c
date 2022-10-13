@@ -71,9 +71,7 @@ void echo_cnt(int connfd)
     // 이 함수가 client 로 부터 입력을 받는 함수다.
     int n;
     char buf[MAXLINE];       // 원본
-    char BUF2[MAXLINE];      // 복사본
     char clientBuf[MAXLINE]; // client 한테 보낼 입력
-    char *argv[MAXLINE];
     rio_t rio;
 
     Rio_readinitb(&rio, connfd);
