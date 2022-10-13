@@ -2,6 +2,7 @@
 #include <time.h>
 
 sem_t filemutex;
+sem_t countmutex;
 int total_bytes = 0;
 FILE* fp;
 
@@ -9,8 +10,10 @@ typedef struct MultipleArg
 {
 	char *host;
 	char *port;
-	int num_access
+	int num_access;
 }MultipleArg;
+
+void *thread(void *vargp);
 
 int main(int argc, char **argv)
 {
@@ -20,7 +23,7 @@ int main(int argc, char **argv)
 	int clientfd, num_client, num_access;
 	char *host, *port, buf[MAXLINE], *file;
 	rio_t rio;
-	pthread_t tid;
+	pthread_t* tid;
 	
 	if (argc != 5)
 	{
@@ -34,21 +37,31 @@ int main(int argc, char **argv)
 	num_access = atoi(argv[4]);
 	file = argv[5];
 	// 파일 열기
-	fp = fopen(file, 'r');
-	
+	fp = fopen(file, "r");
+	// tid 배열 만들기
+	tid = (pthread_t*)malloc(sizeof(pthread_t) * num_client);
+	// semaphore 초기화
+	Sem_init(&filemutex, 0, 1);
+	Sem_init(&countmutex, 0, 1);
+
+
 	MultipleArg* args = (MultipleArg*) malloc(sizeof(MultipleArg));
 	args->host = host;
 	args->port = port;
 	args->num_access = num_access;
 
 	for (int i = 0; i < num_client; i++) /* Create worker threads */
-		Pthread_create(&tid, NULL, thread, args);
+		Pthread_create(&tid[i], NULL, thread, args);
 
 	/*	fork for each client process	*/
 
 	// wait(&state);
 	
-	
+	// wait for all threads
+	for (int i = 0; i < num_client; i++) /* Create worker threads */
+		Pthread_join(tid[i], NULL);
+
+	free(tid);
 	fclose(fp);
 
 	return 0;
@@ -71,7 +84,8 @@ void *thread(void *vargp)
 		sem_wait(&filemutex); // 연결 끝나면 정산 time
 		// command line 읽어오기
 		// clientNumber++;
-		// buf 에 입력 받아오기
+		// buf 에 입력 받아오기 스레드 safe 하지 않아도 문제 없을꺼 같음
+		// 파일 접근시에는 무조건 lock을 건다.
 		fscanf(fp ,"%s", buf);
 		sem_post(&filemutex);
 		fprintf(stdout, "%s", buf);
@@ -80,6 +94,10 @@ void *thread(void *vargp)
 		Rio_readnb(&rio, buf, MAXLINE);
 		Fputs(buf, stdout);
 		
+		sem_wait(&countmutex);
+		total_bytes += strlen(buf);
+		sem_post(&countmutex);
+
 	}
 
 	Close(clientfd);
