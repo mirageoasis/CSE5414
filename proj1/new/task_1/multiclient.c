@@ -1,119 +1,106 @@
 #include "csapp.h"
 #include <time.h>
 
-#define MAX_CLIENT 100
-#define ORDER_PER_CLIENT 4
-#define STOCK_NUM 10
-#define BUY_SELL_MAX 10
+sem_t filemutex;
+sem_t countmutex;
+int total_bytes = 0;
+FILE* fp;
+
+typedef struct MultipleArg
+{
+	char *host;
+	char *port;
+	int num_access;
+}MultipleArg;
+
+void *thread(void *vargp);
 
 int main(int argc, char **argv)
 {
-	pid_t pids[MAX_CLIENT];
+
 	int runprocess = 0, status, i;
 
-	int clientfd, num_client;
-	char *host, *port, buf[MAXLINE], tmp[3];
+	int clientfd, num_client, num_access;
+	char *host, *port, buf[MAXLINE], *file;
 	rio_t rio;
-
-	if (argc != 4)
+	pthread_t* tid;
+	
+	if (argc != 6)
 	{
-		fprintf(stderr, "usage: %s <host> <port> <client#>\n", argv[0]);
+		fprintf(stderr, "usage: %s <host> <port> <client#> <number of accesss> <name of file>\n", argv[0]);
 		exit(0);
 	}
-
+	// ip 주소, 포트번호, 클라이언트 개수, 접근 횟수
 	host = argv[1];
 	port = argv[2];
 	num_client = atoi(argv[3]);
+	num_access = atoi(argv[4]);
+	file = argv[5];
+	// 파일 열기
+	fp = fopen(file, "r");
+	// tid 배열 만들기
+	tid = (pthread_t*)malloc(sizeof(pthread_t) * num_client);
+	// semaphore 초기화
+	Sem_init(&filemutex, 0, 1);
+	Sem_init(&countmutex, 0, 1);
+
+
+	MultipleArg* args = (MultipleArg*) malloc(sizeof(MultipleArg));
+	args->host = host;
+	args->port = port;
+	args->num_access = num_access;
+
+	for (int i = 0; i < num_client; i++) /* Create worker threads */
+		Pthread_create(&tid[i], NULL, thread, args);
 
 	/*	fork for each client process	*/
-	while (runprocess < num_client)
-	{
-		// wait(&state);
-		pids[runprocess] = fork();
+	
+	// wait for all threads
+	for (int i = 0; i < num_client; i++) /* Create worker threads */
+		Pthread_join(tid[i], NULL);
 
-		if (pids[runprocess] < 0)
-			return -1;
-		/*	child process		*/
-		else if (pids[runprocess] == 0)
-		{
-			printf("child %ld\n", (long)getpid());
-
-			clientfd = Open_clientfd(host, port);
-			Rio_readinitb(&rio, clientfd);
-			srand((unsigned int)getpid());
-
-			for (i = 0; i < ORDER_PER_CLIENT; i++)
-			{
-				int option = rand() % 3;
-
-				if (option == 0)
-				{ // show
-					strcpy(buf, "show\n");
-				}
-				else if (option == 1)
-				{ // buy
-					int list_num = rand() % STOCK_NUM + 1;
-					int num_to_buy = rand() % BUY_SELL_MAX + 1; // 1~10
-
-					strcpy(buf, "buy ");
-					sprintf(tmp, "%d", list_num);
-					strcat(buf, tmp);
-					strcat(buf, " ");
-					sprintf(tmp, "%d", num_to_buy);
-					strcat(buf, tmp);
-					strcat(buf, "\n");
-				}
-				else if (option == 2)
-				{ // sell
-					int list_num = rand() % STOCK_NUM + 1;
-					int num_to_sell = rand() % BUY_SELL_MAX + 1; // 1~10
-
-					strcpy(buf, "sell ");
-					sprintf(tmp, "%d", list_num);
-					strcat(buf, tmp);
-					strcat(buf, " ");
-					sprintf(tmp, "%d", num_to_sell);
-					strcat(buf, tmp);
-					strcat(buf, "\n");
-				}
-				// strcpy(buf, "buy 1 2\n");
-				// fprintf(stdout, "id %d command: %s", getpid(), buf);
-				fprintf(stdout, "%s", buf);
-				Rio_writen(clientfd, buf, strlen(buf));
-				// Rio_readlineb(&rio, buf, MAXLINE);
-				Rio_readnb(&rio, buf, MAXLINE);
-				Fputs(buf, stdout);
-
-				usleep(1000000);
-			}
-
-			Close(clientfd);
-			exit(0);
-		}
-		/*	parten process		*/
-		/*else{
-			for(i=0;i<num_client;i++){
-				waitpid(pids[i], &status, 0);
-			}
-		}*/
-		runprocess++;
-	}
-	for (i = 0; i < num_client; i++)
-	{
-		waitpid(pids[i], &status, 0);
-	}
-
-	/*clientfd = Open_clientfd(host, port);
-	Rio_readinitb(&rio, clientfd);
-
-	while (Fgets(buf, MAXLINE, stdin) != NULL) {
-		Rio_writen(clientfd, buf, strlen(buf));
-		Rio_readlineb(&rio, buf, MAXLINE);
-		Fputs(buf, stdout);
-	}
-
-	Close(clientfd); //line:netp:echoclient:close
-	exit(0);*/
-
+	free(tid);
+	fclose(fp);
+	fprintf(stdout, "total %d bytes received from server!\n", total_bytes);
 	return 0;
+}
+
+void *thread(void *vargp)
+{
+	MultipleArg * args = (MultipleArg*) vargp;
+
+	char* port = args->port;
+	char* host = args->host;
+	int num_access  = args->num_access;
+	rio_t rio;
+	char buf[MAXLINE];
+	int clientfd = Open_clientfd(host, port); 
+	Rio_readinitb(&rio, clientfd);
+	
+	for (int i = 0; i < num_access; i++)
+	{
+		sem_wait(&filemutex); // 연결 끝나면 정산 time
+		// command line 읽어오기
+		// clientNumber++;
+		// buf 에 입력 받아오기 스레드 safe 하지 않아도 문제 없을꺼 같음
+		// 파일 접근시에는 무조건 lock을 건다.
+		fprintf(stdout, "reading files!\n");
+		fgets(buf , MAXLINE, fp);
+		fprintf(stdout, "%s\n", buf);
+		fprintf(stdout, "reading files!\n");
+		sem_post(&filemutex);
+		
+		Rio_writen(clientfd, buf, strlen(buf));
+		// Rio_readlineb(&rio, buf, MAXLINE);
+		Rio_readnb(&rio, buf, MAXLINE);
+		Fputs(buf, stdout);
+		//Fputs('\n', stdout);
+		
+		sem_wait(&countmutex);
+		total_bytes += strlen(buf);
+		sem_post(&countmutex);
+		//sleep(1);
+	}
+
+	Close(clientfd);
 }
