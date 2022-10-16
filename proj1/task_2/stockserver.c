@@ -5,7 +5,7 @@
 
 #include "stockserver.h"
 #define SBUFSIZE 1024
-#define NTHREADS 2
+#define NTHREADS 1024
 
 int lines = 0; /*파일 라인 수(주식의 개수)*/
 int loop = 1;  /*루프 지속할지 말지 결정하는 변수*/
