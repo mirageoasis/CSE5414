@@ -3,8 +3,6 @@
 #include "file_manage.h"
 #include "argv.h"
 #include "micro_httpd.h"
-#include <sys/epoll.h>
-
 
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_RESET "\x1b[0m"

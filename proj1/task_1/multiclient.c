@@ -3,7 +3,7 @@
 
 sem_t filemutex;
 sem_t countmutex;
-int total_bytes = 0;
+long long int total_bytes = 0;
 FILE* fp;
 
 typedef struct MultipleArg
@@ -17,14 +17,16 @@ void *thread(void *vargp);
 
 int main(int argc, char **argv)
 {
-
+	
 	int runprocess = 0, status, i;
 
 	int clientfd, num_client, num_access;
 	char *host, *port, buf[MAXLINE], *file;
 	rio_t rio;
 	pthread_t* tid;
-	
+	struct timeval  tv;
+	double begin, end;
+
 	if (argc != 6)
 	{
 		fprintf(stderr, "usage: %s <host> <port> <client#> <number of accesss> <name of file>\n", argv[0]);
@@ -50,6 +52,9 @@ int main(int argc, char **argv)
 	args->port = port;
 	args->num_access = num_access;
 
+	gettimeofday(&tv, NULL);
+	begin = (tv.tv_sec) + (tv.tv_usec) / 1000000.0 ;
+	
 	for (int i = 0; i < num_client; i++) /* Create worker threads */
 		Pthread_create(&tid[i], NULL, thread, args);
 
@@ -59,10 +64,19 @@ int main(int argc, char **argv)
 	for (int i = 0; i < num_client; i++) /* Create worker threads */
 		Pthread_join(tid[i], NULL);
 
+	fprintf(stdout, "total %lld bytes received from server!\n", total_bytes);
+	
+
+	//sleep(4);
+
+	gettimeofday(&tv, NULL);
+	end = (tv.tv_sec) + (tv.tv_usec) / 1000000.0 ;
+	fprintf(stdout, "total %.3f second elapsed!\n", (end - begin));
+	
 	free(tid);
 	fclose(fp);
-	fprintf(stdout, "total %d bytes received from server!\n", total_bytes);
-	exit(0);
+	
+	return 0;
 }
 
 void *thread(void *vargp)
@@ -84,23 +98,23 @@ void *thread(void *vargp)
 		// clientNumber++;
 		// buf 에 입력 받아오기 스레드 safe 하지 않아도 문제 없을꺼 같음
 		// 파일 접근시에는 무조건 lock을 건다.
-		fprintf(stdout, "reading files!\n");
+		//fprintf(stdout, "reading files!\n");
 		fgets(buf , MAXLINE, fp);
-		fprintf(stdout, "%s", buf);
-		fprintf(stdout, "reading files!\n\n");
+		//fprintf(stdout, "%s\n", buf);
+		//fprintf(stdout, "reading files!\n");
 		sem_post(&filemutex);
 		
 		Rio_writen(clientfd, buf, strlen(buf));
-		//Rio_readlineb(&rio, buf, MAXLINE);
+		// Rio_readlineb(&rio, buf, MAXLINE);
 		Rio_readnb(&rio, buf, MAXLINE);
 		Fputs(buf, stdout);
+		//Fputs('\n', stdout);
 		
 		sem_wait(&countmutex);
 		total_bytes += strlen(buf);
 		sem_post(&countmutex);
-		//sleep(1);
+		sleep(1);
 	}
-
 	Close(clientfd);
 	pthread_exit(0);
 }

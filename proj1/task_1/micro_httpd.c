@@ -89,7 +89,7 @@ int input(char* buf,char* clientBuf)
         file = "./";
 
     /*디버깅 출력 현재 파일 경로도*/
-    fprintf(stdout, "file name is %s\n", file);
+    //fprintf(stdout, "file name is %s\n", file);
     //printf("%d\n", strcmp(file, "index.html"));
 
     len = strlen(file);
