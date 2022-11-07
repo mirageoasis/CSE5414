@@ -71,7 +71,7 @@ int write_ppm(unsigned char **image, const char *name)
 
     fprintf(fp, "%c%c\n", p, number); // 헤더를 읽는 곳
     fprintf(fp, "%d %d\n", row, col);
-    fprintf(fp, "%d\n", max);
+    fprintf(fp, "%d", max);
 
     // col * 3 만큼 할당 -> 이유는 rgb 3개의 값을 사용하기 때문
 
