@@ -11,9 +11,9 @@ const char *TEST_FILE_NAME = "twin.ppm";
 char p;
 char number;
 
-int row;
-int col;
-int max;
+unsigned int row; 
+unsigned int col;
+unsigned int max;
 
 unsigned char **original_image; // 이미지 배열
 unsigned char **reverse_image;  // 리버스 배열
@@ -35,9 +35,9 @@ int read_ppm()
     fp = fopen(FILE_NAME, "rb");
 
     fscanf(fp, "%c%c", &p, &number); // 헤더를 읽는 곳
-    fscanf(fp, "%d %d", &row, &col);
-    fscanf(fp, "%d", &max);
-
+    fscanf(fp, "%u %u", &row, &col);
+    fscanf(fp, "%u", &max);
+    fseek(fp, 1, SEEK_CUR); /* skip one byte, should be whitespace */
     // fprintf(stdout, "%d %d\n", row, col);
     // fprintf(stdout, "%d\n", max);
     //  row 개수 만큼 할당
@@ -71,7 +71,7 @@ int write_ppm(unsigned char **image, const char *name)
 
     fprintf(fp, "%c%c\n", p, number); // 헤더를 읽는 곳
     fprintf(fp, "%d %d\n", row, col);
-    fprintf(fp, "%d", max);
+    fprintf(fp, "%d\n", max);
 
     // col * 3 만큼 할당 -> 이유는 rgb 3개의 값을 사용하기 때문
 
