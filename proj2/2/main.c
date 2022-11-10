@@ -1,30 +1,47 @@
-/* File: main.c
-   Author: Jharrod LaFon
-   Date: Spring 2011
-   Purpose: Compute the prefix sum of an array
-   */
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <mpi.h>
+#include "mpi.h"
+#include <unistd.h>
+#include <stdlib.h>
 
-#define ARRAY_SIZE 1048576
+int do_something(int rank, int root);
 
-int main(int argc, char* argv[])
+int do_something(int rank, int root) {
+    return (2*rank) + root + 1;
+}
+
+int main(int argc,char *argv[])
 {
-    MPI_Init(&argc, &argv);
- 
-    // Get my rank
-    int my_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
- 
-    // Get the sum of all ranks up to mine and print it
-    int total;
-    MPI_Scan(&my_rank, &total, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    printf("[MPI process %d] Total = %d.\n", my_rank, total);
- 
+    int rank, num_of_processes;
+    int i;
+
+    MPI_Comm comm = MPI_COMM_WORLD;
+
+    MPI_Init(&argc,&argv);
+    MPI_Comm_size( comm, &num_of_processes);
+    MPI_Comm_rank( comm, &rank);
+
+    int localsum = 0;
+    int globalsum = 0;
+    int expectedsum = 0;
+    
+    if(rank == 0) {
+        printf("Checking mpi_scan(sum)... (if you see no output then you are good)\n");
+    }
+
+    localsum = do_something(rank, 2);
+    globalsum = 0;
+    MPI_Scan(&localsum,&globalsum,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+
+    expectedsum = 0;
+    // count upto my rank and verify that that was the return from scan
+    for(i=0; i<rank+1; i++) {
+        expectedsum = expectedsum + do_something(i, 2);
+    }
+        
+    if (globalsum != expectedsum) {
+        printf("ERROR: Expected %d got %d [rank:%d]\n", expectedsum, globalsum, rank);
+    }
+        
     MPI_Finalize();
- 
-    return EXIT_SUCCESS;
 }
