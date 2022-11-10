@@ -201,10 +201,12 @@ int main()
     
     // write 함수를 모듈화 하자
 
+
+    //free
     free(original_image);
     free(reverse_image);
     free(gray_image);
     free(smooth_image);
-
+    //free
     return 0;
 }
