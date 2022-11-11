@@ -1,0 +1,2 @@
+mpicc hello.c -o hello
+mpirun -np 8 -hostfile hosts ./hello

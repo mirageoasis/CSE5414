@@ -18,8 +18,8 @@ int main(int argc,char *argv[])
     MPI_Comm comm = MPI_COMM_WORLD;
 
     MPI_Init(&argc,&argv);
-    MPI_Comm_size( comm, &num_of_processes);
-    MPI_Comm_rank( comm, &rank);
+    MPI_Comm_size(comm, &num_of_processes);
+    MPI_Comm_rank(comm, &rank);
 
     int localsum = 0;
     int globalsum = 0;
