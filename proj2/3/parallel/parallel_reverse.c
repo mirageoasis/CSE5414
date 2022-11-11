@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     int col_recieved;
     int num_of_processes, rank;
     MPI_Status status;
-    MPI_Request request[1000000];
+    MPI_Request request[100];
 
     MPI_Init(&argc,&argv);
     MPI_Comm_size(MPI_COMM_WORLD, &num_of_processes);
@@ -109,6 +109,8 @@ int main(int argc, char* argv[])
     {      
 
         printf("\nRANK 0 is working\n\n");
+
+
 
         read_ppm();
 
@@ -125,9 +127,12 @@ int main(int argc, char* argv[])
             MPI_Send((unsigned char *)original_image + (elements_size * i), elements_size , MPI_UNSIGNED_CHAR, i, 0, MPI_COMM_WORLD);
         }
 
+
+
         alloc_space(&reverse_image);
 
         //memcpy(reverse_image, original_image, elements_size);
+        //rank 0은 제일 위엣부분 N分の1 work 한다
         for (int i = 0; i < (row / num_of_processes); i++)
         {
             for (int j = 0; j < col / 2; j++)
@@ -192,6 +197,7 @@ int main(int argc, char* argv[])
                  &status);
   
         // stores the received array segment
+        // in local array a2
         buffer = (pixel*)malloc(sizeof(pixel) * n_elements_recieved);
         MPI_Recv(buffer, n_elements_recieved,
                  MPI_UNSIGNED_CHAR, 0, 0,
