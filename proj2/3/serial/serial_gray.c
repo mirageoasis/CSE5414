@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "global.h"
 
-const char *FILE_NAME = "test.ppm";
+extern const char *FILE_NAME;
 const char *GRAY_FILE_NAME = "gray.ppm";
 
 char p;
@@ -12,12 +10,6 @@ unsigned int row;
 unsigned int col;
 unsigned int max;
 
-typedef struct
-{
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-} pixel;
 
 pixel *original_image; // 이미지 배열
 pixel *gray_image;     // 회색 배열
@@ -95,7 +87,10 @@ int main(int argc, char* argv[])
     alloc_space(&gray_image);
 
     memcpy(gray_image, original_image, sizeof(pixel) * row * col);
+    struct timeval startTime, endTime;
+    double diffTime;
 
+    gettimeofday(&startTime, NULL);
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
@@ -111,10 +106,12 @@ int main(int argc, char* argv[])
             gray_image[i * row + j].b = (unsigned char)mod;
         }
     }
+    gettimeofday(&endTime, NULL);
+    diffTime = ( endTime.tv_sec - startTime.tv_sec ) + (( endTime.tv_usec - startTime.tv_usec ) / 1000000.0);
 
     write_ppm(gray_image, GRAY_FILE_NAME);
-    fprintf(stdout, "file gray complete!\n");
-    
+    fprintf(stdout, "file gray complete in %f seconds!\n", diffTime);
+
     free(original_image);
     free(gray_image);
     //free

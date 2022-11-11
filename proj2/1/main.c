@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     if (argc != 4)
     {
-        fprintf(stdout, "usage : ./palindrome <thread number> <input file> <output file>\n");
+        fprintf(stdout, "usage : ./hw1 <thread number> <input file> <output file>\n");
         return 1;
     }
 

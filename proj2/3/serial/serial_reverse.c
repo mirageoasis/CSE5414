@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "global.h"
 
-const char *FILE_NAME = "test.ppm";
+extern const char *FILE_NAME;
 const char *REVERSE_FILE_NAME = "reverse.ppm";
 
 char p;
@@ -11,13 +9,6 @@ char number;
 unsigned int row;
 unsigned int col;
 unsigned int max;
-
-typedef struct
-{
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-} pixel;
 
 pixel *original_image; // 이미지 배열
 pixel *reverse_image;  // 리버스 배열
@@ -34,11 +25,16 @@ int read_ppm()
 
     fp = fopen(FILE_NAME, "rb");
 
-    fscanf(fp, "%c%c", &p, &number); // 헤더를 읽는 곳
+    //fscanf(fp, "%c%c", &p, &number); // 헤더를 읽는 곳
+    p = fgetc(fp);
+    number = fgetc(fp);
+    fgetc(fp);
     fscanf(fp, "%u %u", &row, &col);
     fscanf(fp, "%u", &max);
-    fseek(fp, 1, SEEK_CUR); /* skip one byte, should be whitespace */
+    fgetc(fp);
+    //fseek(fp, 1, SEEK_CUR); /* skip one byte, should be whitespace */
     fprintf(stdout, "%d %d\n", row, col);
+    fprintf(stdout, "%d\n", max);
     // fprintf(stdout, "%d\n", max);
     //  row 개수 만큼 할당
 
@@ -94,7 +90,10 @@ int main(int argc, char* argv[])
     alloc_space(&reverse_image);
     
     memcpy(reverse_image, original_image, sizeof(pixel) * row * col);
+    struct timeval startTime, endTime;
+    double diffTime;
 
+    gettimeofday(&startTime, NULL);
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col / 2; j++)
@@ -112,9 +111,11 @@ int main(int argc, char* argv[])
             reverse_image[i * row + (col - j - 1)].b = temp_b;
         }
     }
-    
+    gettimeofday(&endTime, NULL);
+    diffTime = ( endTime.tv_sec - startTime.tv_sec ) + (( endTime.tv_usec - startTime.tv_usec ) / 1000000.0);
     write_ppm(reverse_image, REVERSE_FILE_NAME);
-    fprintf(stdout, "file reverse complete!\n");
+    fprintf(stdout, "file reverse complete in %f seconds!\n", diffTime);
+
 
     //free
     free(original_image);

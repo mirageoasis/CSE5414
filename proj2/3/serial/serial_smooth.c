@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "global.h"
 
-const char *FILE_NAME = "test.ppm";
+extern const char *FILE_NAME;
 const char *SMOOTH_FILE_NAME = "smooth.ppm";
 
 char p;
@@ -12,12 +10,6 @@ unsigned int row;
 unsigned int col;
 unsigned int max;
 
-typedef struct
-{
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-} pixel;
 
 pixel *original_image; // 이미지 배열
 pixel *smooth_image;   // 스무스 배열
@@ -100,7 +92,10 @@ int main(int argc, char* argv[])
     write_ppm(smooth_image, SMOOTH_FILE_NAME);
     
     memcpy(smooth_image, original_image, sizeof(pixel) * row * col);
+    struct timeval startTime, endTime;
+    double diffTime;
 
+    gettimeofday(&startTime, NULL);
     for (int i = 1; i < row - 1; i++)
     {
         for (int j = 1; j < col - 1; j++)
@@ -116,9 +111,11 @@ int main(int argc, char* argv[])
             smooth_image[i * row + j].b = (unsigned char)temp_b;
         }
     }
-    
+    gettimeofday(&endTime, NULL);
+    diffTime = ( endTime.tv_sec - startTime.tv_sec ) + (( endTime.tv_usec - startTime.tv_usec ) / 1000000.0);
+
     write_ppm(smooth_image, SMOOTH_FILE_NAME);
-    fprintf(stdout, "file smooth complete!\n");
+    fprintf(stdout, "file smooth complete in %f seconds!\n", diffTime);
 
     //free
     free(original_image);
