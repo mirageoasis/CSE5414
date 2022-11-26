@@ -10,11 +10,7 @@ int *
 add_1_svc(int first, int second,  struct svc_req *rqstp)
 {
 	static int  result;
-
-	/*
-	 * insert server code here
-	 */
-
+	result = first + second;
 	return &result;
 }
 
@@ -26,19 +22,7 @@ sub_1_svc(int first, int second,  struct svc_req *rqstp)
 	/*
 	 * insert server code here
 	 */
-
-	return &result;
-}
-
-int *
-div_1_svc(int first, int second,  struct svc_req *rqstp)
-{
-	static int  result;
-
-	/*
-	 * insert server code here
-	 */
-
+	result = first - second;
 	return &result;
 }
 
@@ -50,7 +34,19 @@ mul_1_svc(int first, int second,  struct svc_req *rqstp)
 	/*
 	 * insert server code here
 	 */
+	result = first * second;
+	return &result;
+}
 
+int *
+div_1_svc(int first, int second,  struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+	result = first / second;
 	return &result;
 }
 
@@ -62,6 +58,13 @@ pow_1_svc(int first, int second,  struct svc_req *rqstp)
 	/*
 	 * insert server code here
 	 */
+	int cnt = 0;
+	result = 1;
+
+	while(cnt < second){
+		result *= first;
+		cnt+=1;
+	}
 
 	return &result;
 }

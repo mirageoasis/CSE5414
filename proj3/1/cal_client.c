@@ -157,7 +157,7 @@ int pop(Stack *stack)
 	if (stack->top == NULL)
 	{
 		printf("스택 언더플로우가 발생했습니다.\n");
-		return;
+		exit(1);
 	}
 	Node *node = stack->top;
 	int data = node->data;
@@ -307,6 +307,89 @@ void debug_list(Node* cur){
 		fprintf(stdout, "\n");
 }
 
+void calculate(CLIENT *clnt){
+	Stack temp_stack; // stack 이다.
+	temp_stack.top = NULL;
+	Node *cur = ans_list_head;
+
+	while(cur != NULL){		
+		if(cur->data > -1){ // 피연산자
+			push(&temp_stack, cur->data);
+		}else{ // 연산자
+			int later = pop(&temp_stack);
+			int earlier = pop(&temp_stack);
+			int* result;
+			switch (cur->data)
+			{
+			case -1:
+				/* code */
+				result = add_1(earlier, later, clnt);
+				//fprintf(stdout, "%d\n", *result);
+				if (result == (int *)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				break;
+			case -2:
+				/* code */
+				result = sub_1(earlier, later, clnt);
+				//fprintf(stdout, "%d\n", *result);
+				if (result == (int *)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				break;
+			case -3:
+				/* code */
+				result = div_1(earlier, later, clnt);
+				//fprintf(stdout, "%d\n", *result);
+				if (result == (int *)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				break;
+			case -4:
+				/* code */
+				result = mul_1(earlier, later, clnt);
+				//fprintf(stdout, "%d\n", *result);
+				if (result == (int *)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				break;
+			case -5:
+				/* code */
+				//fprintf(stdout, "%d %d\n", earlier, later);		
+				result = pow_1(earlier, later, clnt);
+				//fprintf(stdout, "%d\n", *result);
+				if (result == (int *)NULL)
+				{
+					clnt_perror(clnt, "call failed");
+				}
+				break;
+			default:
+				fprintf(stdout, "오류 발생 마지막에서 발생!\n");
+				exit(1);
+				break;
+			}
+			// 결과를 다시 stack 에 push
+			push(&temp_stack, *result);
+		}
+		cur = cur->next;
+	}
+	int final_result = pop(&temp_stack);
+
+	printf("The answer is %d\n", final_result);
+}
+
+void free_list(Node * cur){
+	while(cur != NULL){
+	 	Node* prev= cur;
+		cur = cur->next;
+		free(prev);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	char *host;
@@ -328,44 +411,11 @@ int main(int argc, char *argv[])
 	//  argument list 만들기
 
 	list_construct(buffer);
-	Node * cur = buffer_list_head;
-	
-	postfix_construct(cur);
-	
-	/*
-		while(cur != NULL){
-			if (cur->data > -1){
-				fprintf(stdout, "%d", cur->data);
-			}else{
-				switch(cur->data){
-					case -1:
-						fprintf(stdout, "+");
-						break;
-					case -2:
-						fprintf(stdout, "-");
-						break;
-					case -3:
-						fprintf(stdout, "/");
-						break;
-					case -4:
-						fprintf(stdout, "*");
-						break;
-					case -5:
-						fprintf(stdout, "**");
-						break;
-				}
-			}
-			cur = cur->next;
-		}
-		fprintf(stdout, "\n");
-	*/
-	// list 추가 완료
-	// 연산 우선 순위 +, - / *, / / **
-	
-	// stack 에 추가해서 후위표기식으로 만들어줘야한다.
-	debug_list(ans_list_head);
-	
+	//debug_list(buffer_list_head);
+	postfix_construct(buffer_list_head);
+	free_list(buffer_list_head);
 
+	//debug_list(ans_list_head);
 
 	CLIENT *clnt;
 	clnt = clnt_create(host, CALEPROG, CALMESSAGEVERS, "udp");
@@ -374,10 +424,11 @@ int main(int argc, char *argv[])
 		clnt_pcreateerror(host);
 		exit(1);
 	}
-
+	
+	calculate(clnt);
 
 	// 연산 문자열 받아주기
-
+	free_list(ans_list_head);
 	clnt_destroy(clnt);
 	exit(0);
 }
