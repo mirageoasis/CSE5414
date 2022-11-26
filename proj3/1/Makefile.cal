@@ -3,18 +3,18 @@
 
 # Parameters
 
-CLIENT = msg_client
-SERVER = msg_server
+CLIENT = cal_client
+SERVER = cal_server
 
 SOURCES_CLNT.c = 
 SOURCES_CLNT.h = 
 SOURCES_SVC.c = 
 SOURCES_SVC.h = 
-SOURCES.x = msg.x
+SOURCES.x = cal.x
 
-TARGETS_SVC.c = msg_svc.c msg_server.c   
-TARGETS_CLNT.c = msg_clnt.c msg_client.c   
-TARGETS = msg.h   msg_clnt.c msg_svc.c msg_client.c msg_server.c
+TARGETS_SVC.c = cal_svc.c cal_server.c cal_xdr.c 
+TARGETS_CLNT.c = cal_clnt.c cal_client.c cal_xdr.c 
+TARGETS = cal.h cal_xdr.c cal_clnt.c cal_svc.c cal_client.c cal_server.c
 
 OBJECTS_CLNT = $(SOURCES_CLNT.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)
