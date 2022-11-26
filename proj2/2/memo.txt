@@ -1,0 +1,2 @@
+mpicc hello.c -o hello
+mpiexec -np 15 -mca btl ^openib -hostfile hosts ./hello
