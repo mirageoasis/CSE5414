@@ -4,10 +4,8 @@
 #include <stdlib.h>
 #include "mpi.h"
 
-int do_something(int rank, int root);
+int root(int num){
 
-int do_something(int rank, int root) {
-    return (2*rank) + root + 1;
 }
 
 int main(int argc,char *argv[])
