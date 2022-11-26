@@ -26,17 +26,17 @@ struct sub_1_argument {
 };
 typedef struct sub_1_argument sub_1_argument;
 
-struct mul_1_argument {
-	int first;
-	int second;
-};
-typedef struct mul_1_argument mul_1_argument;
-
 struct div_1_argument {
 	int first;
 	int second;
 };
 typedef struct div_1_argument div_1_argument;
+
+struct mul_1_argument {
+	int first;
+	int second;
+};
+typedef struct mul_1_argument mul_1_argument;
 
 struct pow_1_argument {
 	int first;
@@ -54,12 +54,12 @@ extern  int * add_1_svc(int , int , struct svc_req *);
 #define SUB 2
 extern  int * sub_1(int , int , CLIENT *);
 extern  int * sub_1_svc(int , int , struct svc_req *);
-#define MUL 3
-extern  int * mul_1(int , int , CLIENT *);
-extern  int * mul_1_svc(int , int , struct svc_req *);
-#define DIV 4
+#define DIV 3
 extern  int * div_1(int , int , CLIENT *);
 extern  int * div_1_svc(int , int , struct svc_req *);
+#define MUL 4
+extern  int * mul_1(int , int , CLIENT *);
+extern  int * mul_1_svc(int , int , struct svc_req *);
 #define POW 5
 extern  int * pow_1(int , int , CLIENT *);
 extern  int * pow_1_svc(int , int , struct svc_req *);
@@ -72,12 +72,12 @@ extern  int * add_1_svc();
 #define SUB 2
 extern  int * sub_1();
 extern  int * sub_1_svc();
-#define MUL 3
-extern  int * mul_1();
-extern  int * mul_1_svc();
-#define DIV 4
+#define DIV 3
 extern  int * div_1();
 extern  int * div_1_svc();
+#define MUL 4
+extern  int * mul_1();
+extern  int * mul_1_svc();
 #define POW 5
 extern  int * pow_1();
 extern  int * pow_1_svc();
@@ -89,15 +89,15 @@ extern int caleprog_1_freeresult ();
 #if defined(__STDC__) || defined(__cplusplus)
 extern  bool_t xdr_add_1_argument (XDR *, add_1_argument*);
 extern  bool_t xdr_sub_1_argument (XDR *, sub_1_argument*);
-extern  bool_t xdr_mul_1_argument (XDR *, mul_1_argument*);
 extern  bool_t xdr_div_1_argument (XDR *, div_1_argument*);
+extern  bool_t xdr_mul_1_argument (XDR *, mul_1_argument*);
 extern  bool_t xdr_pow_1_argument (XDR *, pow_1_argument*);
 
 #else /* K&R C */
 extern bool_t xdr_add_1_argument ();
 extern bool_t xdr_sub_1_argument ();
-extern bool_t xdr_mul_1_argument ();
 extern bool_t xdr_div_1_argument ();
+extern bool_t xdr_mul_1_argument ();
 extern bool_t xdr_pow_1_argument ();
 
 #endif /* K&R C */

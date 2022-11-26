@@ -29,15 +29,15 @@ _sub_1 (sub_1_argument *argp, struct svc_req *rqstp)
 }
 
 static int *
-_mul_1 (mul_1_argument *argp, struct svc_req *rqstp)
-{
-	return (mul_1_svc(argp->first, argp->second, rqstp));
-}
-
-static int *
 _div_1 (div_1_argument *argp, struct svc_req *rqstp)
 {
 	return (div_1_svc(argp->first, argp->second, rqstp));
+}
+
+static int *
+_mul_1 (mul_1_argument *argp, struct svc_req *rqstp)
+{
+	return (mul_1_svc(argp->first, argp->second, rqstp));
 }
 
 static int *
@@ -52,8 +52,8 @@ caleprog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	union {
 		add_1_argument add_1_arg;
 		sub_1_argument sub_1_arg;
-		mul_1_argument mul_1_arg;
 		div_1_argument div_1_arg;
+		mul_1_argument mul_1_arg;
 		pow_1_argument pow_1_arg;
 	} argument;
 	char *result;
@@ -77,16 +77,16 @@ caleprog_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		local = (char *(*)(char *, struct svc_req *)) _sub_1;
 		break;
 
-	case MUL:
-		_xdr_argument = (xdrproc_t) xdr_mul_1_argument;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) _mul_1;
-		break;
-
 	case DIV:
 		_xdr_argument = (xdrproc_t) xdr_div_1_argument;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) _div_1;
+		break;
+
+	case MUL:
+		_xdr_argument = (xdrproc_t) xdr_mul_1_argument;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) _mul_1;
 		break;
 
 	case POW:

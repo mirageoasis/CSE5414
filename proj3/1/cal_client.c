@@ -141,40 +141,40 @@ int main(int argc, char *argv[])
 		{
 		case '+':
 			buffer_list_add(num_stack);
-			printf("number\n");
+			//printf("number\n");
 			buffer_list_add(-1);
 			mul_count = 0;
 			num_count = 0;
 			num_stack = 0;
-			printf("plus\n");
+			//printf("plus\n");
 			break;
 		case '-':
 			buffer_list_add(num_stack);
-			printf("number\n");
+			//printf("number\n");
 			buffer_list_add(-2);
 			mul_count = 0;
 			num_count = 0;
 			num_stack = 0;
-			printf("sub\n");
+			//printf("sub\n");
 			break;
 		case '/':
 			buffer_list_add(num_stack);
-			printf("number\n");
+			//printf("number\n");
 			buffer_list_add(-3);
 			mul_count = 0;
 			num_count = 0;
 			num_stack = 0;
-			printf("div\n");
+			//printf("div\n");
 			break;
 		case '*':
 			if (mul_count)
 			{
 				// ** 연산
 				buffer_list_add(-5);
-				printf("pow\n");
+				//printf("pow\n");
 			}else{
 				buffer_list_add(num_stack);
-				printf("number\n");
+				//printf("number\n");
 			}
 			mul_count ^= 1;
 			num_count = 0;
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 			{ // 전에 나온 문자가 곱셈이다.
 				// 곱셈 연산
 				buffer_list_add(-4);
-				printf("mul\n");
+				//printf("mul\n");
 			}
 			num_stack *= 10;
 			num_stack += buffer[i] - '0';
@@ -197,33 +197,37 @@ int main(int argc, char *argv[])
 	}
 
 	buffer_list_add(num_stack);
-	printf("number\n");
+	//printf("number\n");
 
 	Node * cur = buffer_list_head;
 
 	while(cur != NULL){
 		if (cur->data > -1){
-			printf(stdout, "%d ", cur->data);
+			fprintf(stdout, "%d", cur->data);
 		}else{
 			switch(cur->data){
 				case -1:
-					printf(stdout, "+");
+					fprintf(stdout, "+");
 					break;
 				case -2:
-					printf(stdout, "-");
+					fprintf(stdout, "-");
 					break;
 				case -3:
-					printf(stdout, "/");
+					fprintf(stdout, "/");
 					break;
 				case -4:
-					printf(stdout, "%d ", cur->data);
+					fprintf(stdout, "*");
 					break;
 				case -5:
+					fprintf(stdout, "**");
 					break;
 			}
 		}
+		cur = cur->next;
 	}
-	printf(stdout, "\n");
+	fprintf(stdout, "\n");
+	// 완료
+
 
 	// 연산 우선 순위 +, - / *, / / **
 	exit(0);

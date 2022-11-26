@@ -26,7 +26,7 @@ xdr_sub_1_argument (XDR *xdrs, sub_1_argument *objp)
 }
 
 bool_t
-xdr_mul_1_argument (XDR *xdrs, mul_1_argument *objp)
+xdr_div_1_argument (XDR *xdrs, div_1_argument *objp)
 {
 	 if (!xdr_int (xdrs, &objp->first))
 		 return FALSE;
@@ -36,7 +36,7 @@ xdr_mul_1_argument (XDR *xdrs, mul_1_argument *objp)
 }
 
 bool_t
-xdr_div_1_argument (XDR *xdrs, div_1_argument *objp)
+xdr_mul_1_argument (XDR *xdrs, mul_1_argument *objp)
 {
 	 if (!xdr_int (xdrs, &objp->first))
 		 return FALSE;
