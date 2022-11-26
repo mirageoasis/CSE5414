@@ -5,6 +5,7 @@
  */
 
 #include "cal.h"
+#include <stdbool.h>
 #define MAXSIZE 256
 
 void caleprog_1(char *host)
@@ -83,7 +84,11 @@ typedef struct
 } Stack;
 
 Node *buffer_list_head = NULL; // 처음에 buffer 에서 연산을 받아서 리스트로 만들어준다.
-Node *buffer_list_tail = NULL;
+Node *buffer_list_tail = NULL; // 처음에 buffer 에서 연산을 받아서 리스트로 만들어준다.
+
+Node *ans_list_head = NULL; // 후위연산 list
+Node *ans_list_tail = NULL; // 후위연산 list
+
 
 void buffer_list_add(int value)
 {
@@ -107,26 +112,61 @@ void buffer_list_add(int value)
 	}
 }
 
-int main(int argc, char *argv[])
+void ans_list_add(int value)
 {
-	char *host;
 
-	if (argc < 2)
+	Node *pnew = (Node *)malloc(sizeof(Node));
+	pnew->data = value;
+	pnew->next = NULL;
+	// 노드 값 설정
+
+	if (ans_list_head == NULL)
 	{
-		printf("usage: %s server_host\n", argv[0]);
-		exit(1);
+		// 아무것도 없는 경우
+		ans_list_head = pnew;
+		ans_list_tail = pnew;
 	}
+	else
+	{
+		// 일반적인 경우
+		ans_list_tail->next = pnew;
+		ans_list_tail = pnew;
+	}
+}
 
-	// host 받아오기
-	host = argv[1];
-	// caleprog_1 (host);
+bool isPriority(int fromStack, int challenger){
+	
+	
+	return false;
+}
 
-	char buffer[MAXSIZE + 1];
-	// 연산 먼저하기
-	fgets(buffer, MAXSIZE, stdin);
-	// printf("%s\n", buffer);
-	//  argument list 만들기
+int getTop(Stack *stack) {
+  Node *top = stack->top;
+  return top->data;
+}
 
+void push(Stack *stack, int data) {
+  Node *node = (Node*)malloc(sizeof(Node)); 
+  node->data = data;
+  node->next = stack->top;
+  stack->top = node;
+}
+
+int pop(Stack *stack)
+{
+	if (stack->top == NULL)
+	{
+		printf("스택 언더플로우가 발생했습니다.\n");
+		return;
+	}
+	Node *node = stack->top;
+	int data = node->data;
+	stack->top = node->next;
+	free(node);
+	return data;
+}
+
+void list_construct(char * buffer){
 	int mul_count = 0;
 	int num_count = 0; // 숫자인지 아닌지 판별
 	int num_stack = 0; // 숫자 남았는지 계산
@@ -198,39 +238,135 @@ int main(int argc, char *argv[])
 
 	buffer_list_add(num_stack);
 	//printf("number\n");
+}
 
-	Node * cur = buffer_list_head;
-
-	while(cur != NULL){
-		if (cur->data > -1){
-			fprintf(stdout, "%d", cur->data);
-		}else{
-			switch(cur->data){
-				case -1:
-					fprintf(stdout, "+");
-					break;
-				case -2:
-					fprintf(stdout, "-");
-					break;
-				case -3:
-					fprintf(stdout, "/");
-					break;
-				case -4:
-					fprintf(stdout, "*");
-					break;
-				case -5:
-					fprintf(stdout, "**");
-					break;
-			}
+void postfix_construct(Node * cur){
+	Stack temp_stack; // stack 이다.
+	temp_stack.top = NULL;
+	
+	while (cur != NULL)
+	{
+		if (cur->data > -1)
+		{ // 숫자다
+			//fprintf(stdout, "%d", cur->data);
+			ans_list_add(cur->data); // list 에 추가해준다.
 		}
+		else
+		{
+			// 연산자
+			// -1 을 해주면 0 1 2 3 4 이런식임
+			// 2로 나눠주면 연산자 우선순위도 만족~
+			// 클수록 연산자 우선 순위가 크다고 약속
+			int cal_id = abs(cur->data) - 1;
+			int priority = cal_id / 2;
+			
+			// 스택이 비어있지 않을 때 AND TEMP_STACK.TOP
+			while(temp_stack.top != NULL && priority < (abs(getTop(&temp_stack)) - 1) / 2){
+				ans_list_add(pop(&temp_stack));
+			}
+			push(&temp_stack, cur->data);	
+		}
+	 	Node* prev = cur;
+		//free(prev);
 		cur = cur->next;
 	}
-	fprintf(stdout, "\n");
-	// 완료
+	
+	while (temp_stack.top != NULL) {
+    	ans_list_add(pop(&temp_stack));
+  	}
 
+}
 
+void debug_list(Node* cur){
+	while(cur != NULL){
+			//printf("%d ", count);
+			if (cur->data > -1){
+				fprintf(stdout, "%d ", cur->data);
+			}else{
+				switch(cur->data){
+					case -1:
+						fprintf(stdout, "+ ");
+						break;
+					case -2:
+						fprintf(stdout, "- ");
+						break;
+					case -3:
+						fprintf(stdout, "/ ");
+						break;
+					case -4:
+						fprintf(stdout, "* ");
+						break;
+					case -5:
+						fprintf(stdout, "** ");
+						break;
+				}
+			//fprintf(stdout, "\n");
+			}
+			cur = cur->next;
+		}
+		fprintf(stdout, "\n");
+}
+
+int main(int argc, char *argv[])
+{
+	char *host;
+
+	if (argc < 2)
+	{
+		printf("usage: %s server_host\n", argv[0]);
+		exit(1);
+	}
+
+	// host 받아오기
+	host = argv[1];
+	// caleprog_1 (host);
+
+	char buffer[MAXSIZE + 1];
+	// 연산 먼저하기
+	fgets(buffer, MAXSIZE, stdin);
+	// printf("%s\n", buffer);
+	//  argument list 만들기
+
+	list_construct(buffer);
+	Node * cur = buffer_list_head;
+	
+	postfix_construct(cur);
+	
+	/*
+		while(cur != NULL){
+			if (cur->data > -1){
+				fprintf(stdout, "%d", cur->data);
+			}else{
+				switch(cur->data){
+					case -1:
+						fprintf(stdout, "+");
+						break;
+					case -2:
+						fprintf(stdout, "-");
+						break;
+					case -3:
+						fprintf(stdout, "/");
+						break;
+					case -4:
+						fprintf(stdout, "*");
+						break;
+					case -5:
+						fprintf(stdout, "**");
+						break;
+				}
+			}
+			cur = cur->next;
+		}
+		fprintf(stdout, "\n");
+	*/
+	// list 추가 완료
 	// 연산 우선 순위 +, - / *, / / **
-	exit(0);
+	
+	// stack 에 추가해서 후위표기식으로 만들어줘야한다.
+	debug_list(ans_list_head);
+	
+
+
 	CLIENT *clnt;
 	clnt = clnt_create(host, CALEPROG, CALMESSAGEVERS, "udp");
 	if (clnt == NULL)
@@ -238,6 +374,7 @@ int main(int argc, char *argv[])
 		clnt_pcreateerror(host);
 		exit(1);
 	}
+
 
 	// 연산 문자열 받아주기
 
