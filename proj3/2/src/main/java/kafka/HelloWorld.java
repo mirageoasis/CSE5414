@@ -32,7 +32,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 public class HelloWorld {
 
-    static String SERVER_LOC = "localhost:31628";
+    static String SERVER_LOC = "localhost:9092";
     static String topicString = "";
     static String ID_STRING = "";
     static int ID_number = 0;
