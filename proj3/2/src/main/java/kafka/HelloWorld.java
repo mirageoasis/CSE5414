@@ -166,6 +166,24 @@ public class HelloWorld {
             return senario_number;
         } else if (senario_number == 3) {
             // topic 설정후에 있으면 break
+            Properties config = new Properties();
+            config.put(ConsumerConfig.GROUP_ID_CONFIG, ID_STRING);
+            config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, SERVER_LOC);
+            config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                    "org.apache.kafka.common.serialization.StringDeserializer");
+            config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                    "org.apache.kafka.common.serialization.StringDeserializer");
+            config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+            config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+
+            KafkaConsumer<String, String> consumer = new KafkaConsumer(config);
+            consumer.subscribe(Collections.singletonList(topic_name));
+            
+            consumer.poll(1);
+            consumer.seekToBeginning(consumer.assignment());
+            consumer.poll(1);
+            consumer.commitSync();
+            consumer.close();
             reset = true;
             return senario_number;
         } else if (senario_number == 4) {
