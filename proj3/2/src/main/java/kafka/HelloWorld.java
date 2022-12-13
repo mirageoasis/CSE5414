@@ -90,7 +90,7 @@ public class HelloWorld {
         config.put(ProducerConfig.CLIENT_ID_CONFIG, ID_STRING);
         config.put(ProducerConfig.LINGER_MS_CONFIG, 1);
         
-        AdminClient adminClient = AdminClient.create(properties);
+        AdminClient adminClient = AdminClient.create(config);
         NewTopic newTopic = new NewTopic(name, 1, (short) 1); // new NewTopic(topicName, numPartitions,
                                                               // replicationFactor)
 
