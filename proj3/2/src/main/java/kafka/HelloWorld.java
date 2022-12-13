@@ -81,9 +81,15 @@ public class HelloWorld {
     }
 
     public static void kafkaTopicCreate(String name) throws FileNotFoundException, IOException {
-        Properties properties = new Properties();
-        properties.load(new FileReader(new File("kafka.properties")));
-        // System.out.println("gogogo!");
+        Properties config = new Properties();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, SERVER_LOC);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, 
+                "org.apache.kafka.common.serialization.StringSerializer");
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, 
+                "org.apache.kafka.common.serialization.StringSerializer");
+        config.put(ProducerConfig.CLIENT_ID_CONFIG, ID_STRING);
+        config.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        
         AdminClient adminClient = AdminClient.create(properties);
         NewTopic newTopic = new NewTopic(name, 1, (short) 1); // new NewTopic(topicName, numPartitions,
                                                               // replicationFactor)
